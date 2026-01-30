@@ -1,0 +1,6 @@
+[submodule "cmsis"]
+	path = lib/cmsis
+	url = https://github.com/STMicroelectronics/cmsis_core.git
+[submodule "cmsis-stm32f4"]
+	path = lib/cmsis_stm32f4
+	url = https://github.com/STMicroelectronics/cmsis-device-f4.git
