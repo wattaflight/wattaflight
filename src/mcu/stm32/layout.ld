@@ -53,6 +53,3 @@ SECTIONS
 
   end = .;
 }
-
-/*#define FASTMEMI  __attribute__((section(".fastdata")))
-#define FASTMEM0   __attribute__((section(".fastbss")))*/
