@@ -24,9 +24,9 @@ void reset_handler(void)
 
     if (__FPU_PRESENT)
     {
-        // CP10 and CP11 full access
-        SCB->CPACR |= ((3UL << 10 * 2) |
-                       (3UL << 11 * 2));
+        // Enable the FPU coprocessor
+        SCB->CPACR |= (SCB_CPACR_CP10_Msk | SCB_CPACR_CP11_Msk);
+
         __DSB();
         __ISB();
     }

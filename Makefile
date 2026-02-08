@@ -14,7 +14,6 @@ OBJCOPY := arm-none-eabi-objcopy
 # --- Project settings ---
 
 FIRMWARE_NAME := fusionflight
-BUILD_DIR     := build
 
 # --- Target platform ---
 
@@ -40,6 +39,7 @@ LDSCRIPTS := $(MCU_LDSCRIPTS)
 
 # --- Build artifacts ---
 
+BUILD_DIR     := build/$(TARGET)
 FIRMWARE_BASE := $(BUILD_DIR)/$(FIRMWARE_NAME)
 FIRMWARE_ELF  := $(FIRMWARE_BASE).elf
 FIRMWARE_BIN  := $(FIRMWARE_BASE).bin

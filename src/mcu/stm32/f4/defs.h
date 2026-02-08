@@ -5,6 +5,6 @@
 
 #pragma once
 
-#define STM32F405xx
+#include "mcu/stm32/defs.h"
 
-#include <stm32f4xx.h>
+#define HSI_HZ 16_000_000

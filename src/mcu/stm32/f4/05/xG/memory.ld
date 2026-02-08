@@ -11,3 +11,5 @@ MEMORY
 }
 
 REGION_ALIAS("FASTRAM", CCMRAM);
+
+INCLUDE "src/mcu/stm32/layout.ld"
