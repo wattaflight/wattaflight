@@ -7,4 +7,5 @@
 
 #include "mcu/stm32/defs.h"
 
-#define HSI_HZ 16_000_000
+#define HSI_HZ 16'000'000
+#define SYSCLK_HZ RCC_MAX_FREQUENCY

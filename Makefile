@@ -33,8 +33,8 @@ include src/hal/$(PLATFORM_VENDOR)/hal.mk
 
 # --- Source files ---
 
-SOURCES   := $(MCU_SOURCES) src/main.c
-INCLUDES  := $(MCU_INCLUDES) src
+SOURCES   := $(MCU_SOURCES) $(HAL_SOURCES) src/main.c
+INCLUDES  := $(MCU_INCLUDES) src/target/$(TARGET) src
 LDSCRIPTS := $(MCU_LDSCRIPTS)
 
 # --- Build artifacts ---

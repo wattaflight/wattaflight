@@ -10,3 +10,5 @@
 #define SCB_CPACR_CP10_Msk (3UL << SCB_CPACR_CP10_Pos)
 #define SCB_CPACR_CP11_Pos 22U
 #define SCB_CPACR_CP11_Msk (3UL << SCB_CPACR_CP11_Pos)
+
+#define USBCLK_HZ 48'000'000
