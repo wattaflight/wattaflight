@@ -5,8 +5,7 @@
 
 #include "hal/base/sys.h"
 
-void main(void)
-{
+void main(void) {
     sys_init();
 
     while (true)

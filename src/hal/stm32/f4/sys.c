@@ -9,13 +9,12 @@
 #define HSE_HZ 8'000'000
 #endif
 
-void sys_init(void)
-{
+void sys_init(void) {
     constexpr uint32_t VCO_HZ = 2'000'000;
-    constexpr uint32_t PLLM = HSE_HZ / VCO_HZ;
-    constexpr uint32_t PLLN = 168;
-    constexpr uint32_t PLLP = 2;
-    constexpr uint32_t PLLQ = 7;
+    constexpr uint32_t PLLM   = HSE_HZ / VCO_HZ;
+    constexpr uint32_t PLLN   = 168;
+    constexpr uint32_t PLLP   = 2;
+    constexpr uint32_t PLLQ   = 7;
 
     static_assert(HSE_HZ % VCO_HZ == 0, "HSE must be divisible by VCO");
     static_assert(PLLN * VCO_HZ / PLLP == SYSCLK_HZ, "SYSCLK must be 168 MHz");
