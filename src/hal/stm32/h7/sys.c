@@ -34,7 +34,7 @@ constexpr pll_config_t pll_table[] = {
 static pll_config_t select_pll_config(uint32_t sysclk_mhz) {
     for (unsigned int i = 0; i < lengthof(pll_table); i++) {
         auto cfg = pll_table[i];
-        if (cfg.sysclk_mhz == sysclk_mhz && cfg.hse_mhz * 1000 == HSE_HZ) {
+        if (cfg.sysclk_mhz == sysclk_mhz && cfg.hse_mhz * 1'000'000 == HSE_HZ) {
             return cfg;
         }
     }
@@ -43,6 +43,11 @@ static pll_config_t select_pll_config(uint32_t sysclk_mhz) {
 }
 
 void sys_init(void) {
+    // Switch to HSI
+    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_SW) | RCC_CFGR_SW_HSI;
+    while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI)
+        ;
+
     uint32_t sysclk_mhz;
 #ifdef STM32H7_LINE_CLASSIC
     uint32_t rev_id = (DBGMCU->IDCODE & DBGMCU_IDCODE_REV_ID) >> DBGMCU_IDCODE_REV_ID_Pos;
@@ -50,7 +55,12 @@ void sys_init(void) {
     // Lock power supply to LDO (default)
     PWR->CR3 &= ~PWR_CR3_SCUEN;
 
+    // Enable SYSCFG clock
+    RCC->APB4ENR |= RCC_APB4ENR_SYSCFGEN;
+    (void)RCC->APB4ENR;
+
     // Set VOS1 (up to 400 MHz)
+    SYSCFG->PWRCR &= ~SYSCFG_PWRCR_ODEN;
     PWR->D3CR |= PWR_D3CR_VOS_0 | PWR_D3CR_VOS_1;
     while (!(PWR->D3CR & PWR_D3CR_VOSRDY))
         ;
@@ -58,11 +68,6 @@ void sys_init(void) {
 
     // Engage VOS0 (up to 480 MHz) for all but Rev Y revisions
     if (rev_id != 0x1003) {
-        // Enable SYSCFG clock
-        RCC->APB4ENR |= RCC_APB4ENR_SYSCFGEN;
-        (void)RCC->APB4ENR;
-
-        // Enable overdrive mode
         SYSCFG->PWRCR |= SYSCFG_PWRCR_ODEN;
         while (!(PWR->D3CR & PWR_D3CR_VOSRDY))
             ;
@@ -84,14 +89,9 @@ void sys_init(void) {
         ;
     sysclk_mhz = 520;
 #else
-    #error "Unknown MCU"
+    #error "Unknown STM32H7 line"
 #endif
     const pll_config_t pll_cfg = select_pll_config(sysclk_mhz);
-
-    // Enable HSE
-    RCC->CR |= RCC_CR_HSEON;
-    while (!(RCC->CR & RCC_CR_HSERDY))
-        ;
 
     // Set Flash wait states and programming delay
     // These happen to be mapped 1:1
@@ -102,26 +102,31 @@ void sys_init(void) {
     while ((FLASH->ACR & FLASH_ACR_LATENCY) != pll_cfg.ws) //
         ;
 
+    // Enable HSE
+    RCC->CR |= RCC_CR_HSEON;
+    while (!(RCC->CR & RCC_CR_HSERDY))
+        ;
+
     // Disable PLL
     RCC->CR &= ~RCC_CR_PLL1ON;
     while (RCC->CR & RCC_CR_PLL1RDY)
         ;
 
-    // Configure PLL - PLLCKSELR
-    RCC->PLLCKSELR = (RCC->PLLCKSELR & ~(RCC_PLLCKSELR_PLLSRC |    //
-                                         RCC_PLLCKSELR_DIVM1)) |   //
-                     RCC_PLLCKSELR_PLLSRC_HSE |                    //
-                     ((pll_cfg.m - 1) << RCC_PLLCKSELR_DIVM1_Pos); //
+    // Configure PLL - Select HSE as input, update DIVM1
+    RCC->PLLCKSELR = (RCC->PLLCKSELR & ~(RCC_PLLCKSELR_PLLSRC |  //
+                                         RCC_PLLCKSELR_DIVM1)) | //
+                     RCC_PLLCKSELR_PLLSRC_HSE |                  //
+                     (pll_cfg.m << RCC_PLLCKSELR_DIVM1_Pos);     //
 
-    // Configure PLL - PLL1DIVR
-    RCC->PLL1DIVR = ((((pll_cfg.n - 1) << RCC_PLL1DIVR_N1_Pos) & RCC_PLL1DIVR_N1) | //
-                     (((pll_cfg.p - 1) << RCC_PLL1DIVR_P1_Pos) & RCC_PLL1DIVR_P1) | //
-                     (((pll_cfg.q - 1) << RCC_PLL1DIVR_Q1_Pos) & RCC_PLL1DIVR_Q1) | //
-                     (((pll_cfg.r - 1) << RCC_PLL1DIVR_R1_Pos) & RCC_PLL1DIVR_R1)); //
-
-    // Configure PLL - Input frequency range
+    // Configure PLL - Adjust input frequency range (HSE_HZ / DIVM1)
     RCC->PLLCFGR = (RCC->PLLCFGR & ~RCC_PLLCFGR_PLL1RGE) |   //
                    (pll_cfg.rge << RCC_PLLCFGR_PLL1RGE_Pos); //
+
+    // Configure PLL - Update dividers DIVN1, DIVP1, DIVQ1 and DIVR1
+    RCC->PLL1DIVR = (((pll_cfg.n - 1) << RCC_PLL1DIVR_N1_Pos) & RCC_PLL1DIVR_N1) | //
+                    (((pll_cfg.p - 1) << RCC_PLL1DIVR_P1_Pos) & RCC_PLL1DIVR_P1) | //
+                    (((pll_cfg.q - 1) << RCC_PLL1DIVR_Q1_Pos) & RCC_PLL1DIVR_Q1) | //
+                    (((pll_cfg.r - 1) << RCC_PLL1DIVR_R1_Pos) & RCC_PLL1DIVR_R1);  //
 
     // Configure bus dividers - AHB
     RCC->D1CFGR = (RCC->D1CFGR & ~RCC_D1CFGR_HPRE) | RCC_D1CFGR_HPRE_DIV2;
@@ -145,10 +150,10 @@ void sys_init(void) {
     while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL1)
         ;
 
-    // Configure SysTick for 1 ms tick
-    SysTick_Config(sysclk_mhz * 1'000);
-
-    // Enable I-Cache and D-Cache
+    // Enable L1 cache
     SCB_EnableICache();
     SCB_EnableDCache();
+
+    // Configure SysTick for 1 ms tick
+    SysTick_Config(sysclk_mhz * 1'000);
 }
