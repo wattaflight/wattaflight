@@ -5,3 +5,5 @@
 
 #define FASTMEMI __attribute__((section(".fastdata")))
 #define FASTMEM0 __attribute__((section(".fastbss")))
+
+#define lengthof(arr) (sizeof(arr) / sizeof((arr)[0]))

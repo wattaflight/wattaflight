@@ -62,6 +62,7 @@ CFLAGS += -ffreestanding
 CFLAGS += $(OPT_FLAGS) $(LTO_FLAGS)
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -Wall -Wextra -Werror -Wdouble-promotion
+CFLAGS += -fmacro-prefix-map=$(CURDIR)/src/=
 CFLAGS += $(addprefix -I,$(INCLUDES))
 CFLAGS += -MMD -MP
 
