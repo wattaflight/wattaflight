@@ -6,5 +6,3 @@
 #pragma once
 
 #include "mcu/stm32/defs.h"
-
-#define HSI_HZ 64'000'000
