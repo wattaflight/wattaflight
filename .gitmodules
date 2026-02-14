@@ -1,9 +1,9 @@
 [submodule "cmsis"]
 	path = lib/cmsis
 	url = https://github.com/STMicroelectronics/cmsis_core.git
-[submodule "cmsis-stm32f4"]
-	path = lib/cmsis_stm32f4
+[submodule "stm32f4-pal"]
+	path = lib/stm32f4_pal
 	url = https://github.com/STMicroelectronics/cmsis-device-f4.git
-[submodule "cmsis-stm32h7"]
-	path = lib/cmsis_stm32h7
+[submodule "stm32h7-pal"]
+	path = lib/stm32h7_pal
 	url = https://github.com/STMicroelectronics/cmsis-device-h7.git
