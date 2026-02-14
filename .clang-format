@@ -3,6 +3,7 @@ IndentWidth: 4
 ColumnLimit: 100
 
 IndentPPDirectives: BeforeHash
+AllowShortCaseLabelsOnASingleLine: true
 
 AlignArrayOfStructures: Left
 AlignConsecutiveAssignments: Consecutive

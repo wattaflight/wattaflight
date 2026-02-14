@@ -10,33 +10,24 @@
 #include "mcu.h"
 #include "target.h"
 
-#ifdef XTAL_HZ
-    #define HSE_HZ XTAL_HZ
+#ifdef XTAL_MHZ
+    #define HSE_MHZ XTAL_MHZ
 #else
-    #define HSE_HZ 8'000'000
+    #define HSE_MHZ 8
 #endif
 
 typedef struct {
-    uint16_t sysclk_mhz, hse_mhz;
     uint16_t m, n, p, q, r;
     uint8_t  rge, ws;
 } pll_config_t;
 
-constexpr pll_config_t pll_table[] = {
-    {520, 8,  .m = 1, .n = 65, .p = 1, .q = 4, .r = 2, .rge = 3, .ws = 3},
-    {520, 16, .m = 2, .n = 65, .p = 1, .q = 4, .r = 2, .rge = 3, .ws = 3},
-    {480, 8,  .m = 1, .n = 60, .p = 1, .q = 4, .r = 2, .rge = 3, .ws = 3},
-    {480, 16, .m = 2, .n = 60, .p = 1, .q = 4, .r = 2, .rge = 3, .ws = 3},
-    {400, 8,  .m = 1, .n = 50, .p = 1, .q = 4, .r = 2, .rge = 3, .ws = 2},
-    {400, 16, .m = 2, .n = 50, .p = 1, .q = 4, .r = 2, .rge = 3, .ws = 2},
-};
-
 static pll_config_t select_pll_config(uint32_t sysclk_mhz) {
-    for (unsigned int i = 0; i < lengthof(pll_table); i++) {
-        auto cfg = pll_table[i];
-        if (cfg.sysclk_mhz == sysclk_mhz && cfg.hse_mhz * 1'000'000 == HSE_HZ) {
-            return cfg;
-        }
+    constexpr uint8_t m = HSE_MHZ / 8;
+
+    switch (sysclk_mhz) {
+    case 520: return (pll_config_t){.m = m, .n = 65, .p = 1, .q = 4, .r = 2, .rge = 3, .ws = 3};
+    case 480: return (pll_config_t){.m = m, .n = 60, .p = 1, .q = 4, .r = 2, .rge = 3, .ws = 3};
+    case 400: return (pll_config_t){.m = m, .n = 50, .p = 1, .q = 4, .r = 2, .rge = 3, .ws = 2};
     }
 
     unreachable();
