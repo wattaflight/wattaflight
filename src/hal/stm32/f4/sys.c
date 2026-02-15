@@ -20,6 +20,7 @@ static pll_config_t select_pll_config(uint16_t sysclk_mhz) {
 
     switch (sysclk_mhz) {
     case 168: return (pll_config_t){.m = 4 * mmul, .n = 168, .p = 2, .q = 7, .ws = 5};
+    case 100: return (pll_config_t){.m = 4 * mmul, .n = 192, .p = 4, .q = 8, .ws = 3};
     }
 
     unreachable();
