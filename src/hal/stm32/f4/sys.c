@@ -15,7 +15,7 @@ typedef struct {
     uint8_t  ws;
 } pll_config_t;
 
-static pll_config_t select_pll_config(uint32_t sysclk_mhz) {
+static pll_config_t select_pll_config(uint16_t sysclk_mhz) {
     constexpr uint8_t mmul = HSE_MHZ / 8;
 
     switch (sysclk_mhz) {

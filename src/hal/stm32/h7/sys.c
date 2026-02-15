@@ -21,7 +21,7 @@ typedef struct {
     uint8_t  rge, ws;
 } pll_config_t;
 
-static pll_config_t select_pll_config(uint32_t sysclk_mhz) {
+static pll_config_t select_pll_config(uint16_t sysclk_mhz) {
     constexpr uint8_t m = HSE_MHZ / 8;
 
     switch (sysclk_mhz) {
@@ -39,7 +39,7 @@ void sys_init(void) {
     while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI)
         ;
 
-    uint32_t sysclk_mhz;
+    uint16_t sysclk_mhz;
 #ifdef STM32H7_LINE_CLASSIC
     uint32_t rev_id = (DBGMCU->IDCODE & DBGMCU_IDCODE_REV_ID) >> DBGMCU_IDCODE_REV_ID_Pos;
 
